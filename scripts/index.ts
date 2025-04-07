@@ -4,6 +4,7 @@ import { stressOptions } from "./stress";
 import { redisReadCommand, redisInitCommand } from "./redis";
 import {
   writeConfigCommand,
+  writeKcnGenesisCommand,
   writeGethGenesisCommand,
   writePrysmCommand,
   writeL2ChainConfigCommand,
@@ -41,7 +42,8 @@ async function main() {
   await Yargs(hideBin(process.argv))
     .options({
       redisUrl: { string: true, default: "redis://redis:6379" },
-      l1url: { string: true, default: "ws://geth:8546" },
+      l1url: { string: true, default: "ws://kcn:8546" },
+      // l1url: { string: true, default: "ws://geth:8546" },
       l2url: { string: true, default: "ws://sequencer:8548" },
       l3url: { string: true, default: "ws://l3node:3348" },
       validationNodeUrl: { string: true, default: "ws://validation_node:8549" },
@@ -64,6 +66,7 @@ async function main() {
     .command(setValidKeysetCommand)
     .command(transferL3ChainOwnershipCommand)
     .command(writeConfigCommand)
+    .command(writeKcnGenesisCommand)
     .command(writeGethGenesisCommand)
     .command(writeL2ChainConfigCommand)
     .command(writeL3ChainConfigCommand)

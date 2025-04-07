@@ -47,6 +47,128 @@ DEPOSIT_CONTRACT_ADDRESS: 0x4242424242424242424242424242424242424242
     fs.writeFileSync(path.join(consts.configpath, "prysm.yaml"), prysm)
 }
 
+function writeKcnGenesisConfig(argv: any) {
+    const KcnConfig = `
+    {
+    "config": {
+        "chainId": 1337,
+        "istanbulCompatibleBlock": 0,
+        "londonCompatibleBlock": 0,
+        "ethTxTypeCompatibleBlock": 0,
+        "magmaCompatibleBlock": 0,
+        "koreCompatibleBlock": 0,
+        "shanghaiCompatibleBlock": 0,
+        "kip103CompatibleBlock": 0,
+        "kip103ContractAddress": "0x0000000000000000000000000000000000000000",
+        "istanbul": {
+            "epoch": 30,
+            "policy": 2,
+            "sub": 13
+        },
+        "unitPrice": 25000000000,
+        "deriveShaImpl": 2,
+        "governance": {
+            "governingNode": "0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E",
+            "governanceMode": "single",
+            "govParamContract": "0x0000000000000000000000000000000000000000",
+            "reward": {
+                "mintingAmount": 9600000000000000000,
+                "ratio": "34/54/12",
+                "useGiniCoeff": false,
+                "deferredTxFee": true,
+                "stakingUpdateInterval": 60,
+                "proposerUpdateInterval": 30,
+                "minimumStake": 5000000
+            }
+        }
+    },
+    "timestamp": "0x64d103a9",
+    "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000f85ad5943f1eae7d46d88f08fc2f8ed27fcb2ab183eb2d0eb8410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0",
+    "governanceData": null,
+    "blockScore": "0x1",
+    "alloc": {
+        "0x123463a4B065722E99115D6c222f267d9cABb524": {
+            "balance": "20000000000000000000000"
+        },
+        "0x5678E9E827B3be0E3d4b910126a64a697a148267": {
+            "balance": "20000000000000000000000"
+        },
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266": {
+            "balance": "10000000000000000000000"
+        },
+        "0x70997970c51812dc3a010c7d01b50e0d17dc79c8": {
+            "balance": "10000000000000000000000"
+        },
+        "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc": {
+            "balance": "10000000000000000000000"
+        },
+        "0x90f79bf6eb2c4f870365e785982e1f101e93b906": {
+            "balance": "10000000000000000000000"
+        },
+        "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65": {
+            "balance": "10000000000000000000000"
+        },
+        "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc": {
+            "balance": "10000000000000000000000"
+        },
+        "0x976ea74026e726554db657fa54763abd0c3a0aa9": {
+            "balance": "10000000000000000000000"
+        },
+        "0x14dc79964da2c08b23698b3d3cc7ca32193d9955": {
+            "balance": "10000000000000000000000"
+        },
+        "0x23618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f": {
+            "balance": "10000000000000000000000"
+        },
+        "0xa0ee7a142d267c1f36714e4a8f75612f20a79720": {
+            "balance": "10000000000000000000000"
+        },
+        "0xbcd4042de499d14e55001ccbb24a551f3b954096": {
+            "balance": "10000000000000000000000"
+        },
+        "0x71be63f3384f5fb98995898a86b02fb2426c5788": {
+            "balance": "10000000000000000000000"
+        },
+        "0xfabb0ac9d68b0b445fb7357272ff202c5651694a": {
+            "balance": "10000000000000000000000"
+        },
+        "0x1cbd3b2770909d4e10f157cabc84c7264073c9ec": {
+            "balance": "10000000000000000000000"
+        },
+        "0xdf3e18d64bc6a983f673ab319ccae4f1a57c7097": {
+            "balance": "10000000000000000000000"
+        },
+        "0xcd3b766ccdd6ae721141f452c550ca635964ce71": {
+            "balance": "10000000000000000000000"
+        },
+        "0x2546bcd3c84621e976d8185a91a922ae77ecec30": {
+            "balance": "10000000000000000000000"
+        },
+        "0xbda5747bfd65f08deb54cb465eb87d40e51b197e": {
+            "balance": "10000000000000000000000"
+        },
+        "0xdd2fd4581271e230360230f9337d5c0430bf44c0": {
+            "balance": "10000000000000000000000"
+        },
+        "0x8626f6940e2eb28930efb4cef49b2d1f2c9c1199": {
+            "balance": "10000000000000000000000"
+        },
+        "0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E": {
+          "balance": "1000000000000000000000000000000000"
+        }
+    },
+    "number": "0x0",
+    "gasUsed": "0x0",
+    "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+}
+    `
+    fs.writeFileSync(path.join(consts.configpath, "kcn_genesis.json"), KcnConfig)
+    // const jwt = `0x98ea6e4f216f2fb4b69fff9b3a44842c38686ca685f3f55dc48c5d3fb1107be4`
+    // fs.writeFileSync(path.join(consts.configpath, "jwt.hex"), jwt)
+    // const val_jwt = `0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+    // fs.writeFileSync(path.join(consts.configpath, "val_jwt.hex"), val_jwt)
+}
+
 function writeGethGenesisConfig(argv: any) {
     const gethConfig = `
     {
@@ -625,6 +747,14 @@ export const writePrysmCommand = {
     describe: "writes prysm config files",
     handler: (argv: any) => {
         writePrysmConfig(argv)
+    }
+}
+
+export const writeKcnGenesisCommand = {
+    command: "write-kcn-genesis-config",
+    describe: "writes a kcn genesis configuration",
+    handler: (argv: any) => {
+        writeKcnGenesisConfig(argv)
     }
 }
 

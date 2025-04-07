@@ -46,8 +46,9 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
 
-  geth:
-    image: ethereum/client-go:stable
+  kcn:
+    image: kaiachain/kaia:latest
+    platform: linux/amd64
     ports:
       - "127.0.0.1:8545:8545"
       - "127.0.0.1:8551:8551"
@@ -57,101 +58,150 @@ services:
       - "l1data:/datadir"
       - "l1keystore:/keystore"
       - "config:/config"
+    entrypoint: ["kcn"]
     command:
       - --keystore=/keystore
-      - --http
+#      - --http
       - --datadir=/datadir
-      - --http.addr=0.0.0.0
-      - --authrpc.vhosts=*
-      - --authrpc.port=8551
-      - --authrpc.addr=0.0.0.0
-      - --http.vhosts=*
-      - --http.api=engine,personal,eth,net,web3
-      - --http.corsdomain=*
+      - --networkid=1337
+#      - --http.addr=0.0.0.0
+#      - --authrpc.vhosts=*
+#      - --authrpc.port=8551
+#      - --authrpc.addr=0.0.0.0
+#      - --http.vhosts=*
+#      - --http.api=engine,personal,eth,net,web3
+#      - --http.corsdomain=*
+      - --rpc
+      - --rpcport=8545
+      - --rpcaddr=0.0.0.0
+      - --rpcvhosts=*
+      - --rpccorsdomain=*
+      - --rpcapi=personal,kaia,eth,net,web3
       - --ws
-      - --ws.addr=0.0.0.0
-      - --ws.api=personal,eth,net,web3,debug,txpool
-      - --allow-insecure-unlock
+      - --wsaddr=0.0.0.0
+      - --wsport=8546
+      - --wsorigins=*
+      - --wsapi=personal,kaia,eth,net,web3,debug,txpool
+#      - --allow-insecure-unlock
       - --unlock=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
       - --password=/datadir/passphrase
-      - --authrpc.jwtsecret=/config/jwt.hex
+#      - --authrpc.jwtsecret=/config/jwt.hex
       - --nodiscover
       - --syncmode=full
-      - --state.scheme=hash
-      - --dev
-      - --dev.period=1
-      - --mine
-      - --miner.etherbase=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
+#      - --state.scheme=hash
+#      - --dev
+#      - --dev.period=1
+#      - --mine
+#      - --miner.etherbase=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
+      - --rewardbase=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
       - --gcmode=archive
 
-  # Creates a genesis state for the beacon chain using a YAML configuration file and
-  # a deterministic set of validators
-  # TODO: Make num validators customizable
-  create_beacon_chain_genesis:
-    image: "gcr.io/prysmaticlabs/prysm/cmd/prysmctl:latest"
-    command:
-      - testnet
-      - generate-genesis
-      - --fork=deneb
-      - --num-validators=64
-      - --genesis-time-delay=15
-      - --output-ssz=/consensus/genesis.ssz
-      - --chain-config-file=/config/prysm.yaml
-      - --geth-genesis-json-in=/config/geth_genesis.json
-    volumes:
-      - "consensus:/consensus"
-      - "config:/config"
-
-  # Runs a Prysm beacon chain from a specified genesis state created in the previous step
-  # and connects to go-ethereum in the same network as the execution client.
-  # The account used in go-ethereum is set as the suggested fee recipient for transactions
-  # proposed via the validators attached to the beacon node.
-  prysm_beacon_chain:
-    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:stable"
-    command:
-      - --datadir=/consensus/beacondata
-      - --rpc-port=5000
-      - --min-sync-peers=0
-      - --genesis-state=/consensus/genesis.ssz
-      - --interop-eth1data-votes
-      - --bootstrap-node=
-      - --chain-config-file=/config/prysm.yaml
-      - --rpc-host=0.0.0.0
-      - --grpc-gateway-host=0.0.0.0
-      - --chain-id=1337
-      - --execution-endpoint=http://geth:8551
-      - --accept-terms-of-use
-      - --jwt-secret=/config/jwt.hex
-      - --suggested-fee-recipient=0x000000000000000000000000000000000000dEaD
-    depends_on:
-      geth:
-        condition: service_started
-      create_beacon_chain_genesis:
-        condition: service_completed_successfully
-    ports:
-      - "127.0.0.1:5000:5000"
-      - "127.0.0.1:3500:3500"
-    volumes:
-      - "consensus:/consensus"
-      - "config:/config"
-
-  # We run a validator client with 64, deterministically-generated keys that match
-  # The validator keys present in the beacon chain genesis state generated a few steps above.
-  prysm_validator:
-    image: "gcr.io/prysmaticlabs/prysm/validator:stable"
-    command:
-      - --beacon-rpc-provider=prysm_beacon_chain:5000
-      - --datadir=/consensus/validatordata
-      - --accept-terms-of-use
-      - --interop-num-validators=64
-      - --interop-start-index=0
-      - --chain-config-file=/config/prysm.yaml
-    depends_on:
-      prysm_beacon_chain:
-        condition: service_started
-    volumes:
-      - "consensus:/consensus"
-      - "config:/config"
+#  geth:
+#    image: ethereum/client-go:stable
+#    ports:
+#      - "127.0.0.1:8545:8545"
+#      - "127.0.0.1:8551:8551"
+#      - "127.0.0.1:8546:8546"
+#      - "127.0.0.1:30303:30303"
+#    volumes:
+#      - "l1data:/datadir"
+#      - "l1keystore:/keystore"
+#      - "config:/config"
+#    command:
+#      - --keystore=/keystore
+#      - --http
+#      - --datadir=/datadir
+#      - --http.addr=0.0.0.0
+#      - --authrpc.vhosts=*
+#      - --authrpc.port=8551
+#      - --authrpc.addr=0.0.0.0
+#      - --http.vhosts=*
+#      - --http.api=engine,personal,eth,net,web3
+#      - --http.corsdomain=*
+#      - --ws
+#      - --ws.addr=0.0.0.0
+#      - --ws.api=personal,eth,net,web3,debug,txpool
+#      - --allow-insecure-unlock
+#      - --unlock=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
+#      - --password=/datadir/passphrase
+#      - --authrpc.jwtsecret=/config/jwt.hex
+#      - --nodiscover
+#      - --syncmode=full
+#      - --state.scheme=hash
+#      - --dev
+#      - --dev.period=1
+#      - --mine
+#      - --miner.etherbase=0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E
+#      - --gcmode=archive
+#
+#  # Creates a genesis state for the beacon chain using a YAML configuration file and
+#  # a deterministic set of validators
+#  # TODO: Make num validators customizable
+#  create_beacon_chain_genesis:
+#    image: "gcr.io/prysmaticlabs/prysm/cmd/prysmctl:latest"
+#    command:
+#      - testnet
+#      - generate-genesis
+#      - --fork=deneb
+#      - --num-validators=64
+#      - --genesis-time-delay=15
+#      - --output-ssz=/consensus/genesis.ssz
+#      - --chain-config-file=/config/prysm.yaml
+#      - --geth-genesis-json-in=/config/geth_genesis.json
+#    volumes:
+#      - "consensus:/consensus"
+#      - "config:/config"
+#
+#  # Runs a Prysm beacon chain from a specified genesis state created in the previous step
+#  # and connects to go-ethereum in the same network as the execution client.
+#  # The account used in go-ethereum is set as the suggested fee recipient for transactions
+#  # proposed via the validators attached to the beacon node.
+#  prysm_beacon_chain:
+#    image: "gcr.io/prysmaticlabs/prysm/beacon-chain:stable"
+#    command:
+#      - --datadir=/consensus/beacondata
+#      - --rpc-port=5000
+#      - --min-sync-peers=0
+#      - --genesis-state=/consensus/genesis.ssz
+#      - --interop-eth1data-votes
+#      - --bootstrap-node=
+#      - --chain-config-file=/config/prysm.yaml
+#      - --rpc-host=0.0.0.0
+#      - --grpc-gateway-host=0.0.0.0
+#      - --chain-id=1337
+#      - --execution-endpoint=http://geth:8551
+#      - --accept-terms-of-use
+#      - --jwt-secret=/config/jwt.hex
+#      - --suggested-fee-recipient=0x000000000000000000000000000000000000dEaD
+#    depends_on:
+#      geth:
+#        condition: service_started
+#      create_beacon_chain_genesis:
+#        condition: service_completed_successfully
+#    ports:
+#      - "127.0.0.1:5000:5000"
+#      - "127.0.0.1:3500:3500"
+#    volumes:
+#      - "consensus:/consensus"
+#      - "config:/config"
+#
+#  # We run a validator client with 64, deterministically-generated keys that match
+#  # The validator keys present in the beacon chain genesis state generated a few steps above.
+#  prysm_validator:
+#    image: "gcr.io/prysmaticlabs/prysm/validator:stable"
+#    command:
+#      - --beacon-rpc-provider=prysm_beacon_chain:5000
+#      - --datadir=/consensus/validatordata
+#      - --accept-terms-of-use
+#      - --interop-num-validators=64
+#      - --interop-start-index=0
+#      - --chain-config-file=/config/prysm.yaml
+#    depends_on:
+#      prysm_beacon_chain:
+#        condition: service_started
+#    volumes:
+#      - "consensus:/consensus"
+#      - "config:/config"
 
   sequencer:
     pid: host # allow debugging
@@ -176,7 +226,7 @@ services:
       - --graphql.vhosts=*
       - --graphql.corsdomain=*
     depends_on:
-      - geth
+      - kcn
 
   sequencer_b:
     pid: host # allow debugging
@@ -193,7 +243,7 @@ services:
       - --node.seq-coordinator.my-url=http://sequencer_b:8547
       - --http.api=net,web3,eth,txpool,debug,timeboost,auctioneer
     depends_on:
-      - geth
+      - kcn
       - redis
 
   sequencer_c:
@@ -211,7 +261,7 @@ services:
       - --node.seq-coordinator.my-url=http://sequencer_c:8547
       - --http.api=net,web3,eth,txpool,debug,timeboost,auctioneer
     depends_on:
-      - geth
+      - kcn
       - redis
 
   sequencer_d:
@@ -229,7 +279,7 @@ services:
       - --node.seq-coordinator.my-url=http://sequencer_d:8547
       - --http.api=net,web3,eth,txpool,debug,timeboost,auctioneer
     depends_on:
-      - geth
+      - kcn
       - redis
 
   staker-unsafe:
@@ -262,7 +312,7 @@ services:
       - "config:/config"
     command: --conf.file /config/poster_config.json
     depends_on:
-      - geth
+      - kcn
       - redis
 
   poster_b:
@@ -278,7 +328,7 @@ services:
       - "config:/config"
     command: --conf.file /config/poster_config.json
     depends_on:
-      - geth
+      - kcn
       - redis
 
   poster_c:
@@ -294,7 +344,7 @@ services:
       - "config:/config"
     command: --conf.file /config/poster_config.json
     depends_on:
-      - geth
+      - kcn
       - redis
 
   validator:
@@ -356,7 +406,7 @@ services:
 
   tokenbridge:
     depends_on:
-      - geth
+      - kcn
       - sequencer
     pid: host
     build:
@@ -365,14 +415,14 @@ services:
         TOKEN_BRIDGE_BRANCH: ${TOKEN_BRIDGE_BRANCH:-}
     environment:
       - ARB_URL=http://sequencer:8547
-      - ETH_URL=http://geth:8545
+      - ETH_URL=http://kcn:8545
     volumes:
       - "tokenbridge-data:/workspace"
       - /var/run/docker.sock:/var/run/docker.sock
 
   boldupgrader:
     depends_on:
-      - geth
+      - kcn
       - sequencer
     pid: host
     build:
@@ -380,7 +430,7 @@ services:
       args:
         BOLD_CONTRACTS_BRANCH: ${BOLD_CONTRACTS_BRANCH:-}
     environment:
-      - L1_RPC_URL=http://geth:8545
+      - L1_RPC_URL=http://kcn:8545
       - L1_PRIV_KEY=0xdc04c5399f82306ec4b4d654a342f40e2e0620fe39950d967e1e574b32d4dd36
       - CONFIG_NETWORK_NAME=local
       - DEPLOYED_CONTRACTS_DIR=./scripts/files/
@@ -392,7 +442,7 @@ services:
 
   rollupcreator:
     depends_on:
-      - geth
+      - kcn
       - sequencer
     pid: host
     build:
@@ -411,7 +461,6 @@ services:
       - "das-committee-a-data:/das-committee-a"
       - "das-committee-b-data:/das-committee-b"
       - "das-mirror-data:/das-mirror"
-    command:
 
   das-committee-a:
     pid: host # allow debugging
